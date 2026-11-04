@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Administración de Usuarios</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    header { display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 2rem; }
+    a { color: #38bdf8; text-decoration: none; }
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+    .panel { background: #1e293b; padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
+    input, select, button { width: 100%; padding: 0.6rem; margin-bottom: 0.75rem; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    button { background: #0284c7; font-weight: bold; cursor: pointer; border: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border-bottom: 1px solid #334155; text-align: left; }
+    .badge { background: #0284c7; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Control de Usuarios y Permisos</h2>
+    <a href="/">← Volver al Dashboard</a>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>Crear Nuevo Usuario</h3>
+      <% if (mensaje) { %><p style="color: #f87171;"><%= mensaje %></p><% } %>
+      <form action="/usuarios/crear" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre completo" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <select name="rol">
+          <option value="mecanico">Mecánico (Permisos limitados)</option>
+          <option value="admin">Administrador (Acceso total)</option>
+        </select>
+        <button type="submit">Dar de Alta</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h3>Usuarios Registrados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% usuarios.forEach(u => { %>
+            <tr>
+              <td><%= u.nombre %></td>
+              <td><%= u.email %></td>
+              <td><span class="badge"><%= u.rol %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

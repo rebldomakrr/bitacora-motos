@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Taller Mecánico - Bitácora</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 2rem; }
+    .nav-links a { color: #38bdf8; text-decoration: none; margin-left: 1rem; }
+    .badge { background: #0284c7; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+    .panel { background: #1e293b; padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
+    .full-width { grid-column: span 2; }
+    input, button { width: 100%; padding: 0.6rem; margin-bottom: 0.75rem; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    button { background: #0284c7; font-weight: bold; cursor: pointer; border: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border-bottom: 1px solid #334155; text-align: left; }
+    th { color: #94a3b8; }
+    .action-btn { background: #38bdf8; color: #0f172a; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h2>Bitácora de Servicios</h2>
+      <span>Usuario: <strong><%= usuarioActual.nombre %></strong> (<span class="badge"><%= usuarioActual.rol %></span>)</span>
+    </div>
+    <div class="nav-links">
+      <% if (usuarioActual.rol === 'admin') { %>
+        <a href="/usuarios">Administrar Usuarios</a>
+      <% } %>
+      <a href="/logout" style="color: #f87171;">Cerrar Sesión</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <% if (usuarioActual.rol === 'admin') { %>
+      <div class="panel">
+        <h3>Registrar Nueva Moto</h3>
+        <form action="/motos/crear" method="POST">
+          <input type="text" name="placas" placeholder="Placas (ej. 12ABC3)" required>
+          <input type="text" name="marca" placeholder="Marca (ej. Bajaj, Honda)" required>
+          <input type="text" name="modelo" placeholder="Modelo (ej. Platina 100, Boxer)" required>
+          <input type="number" name="anio" placeholder="Año (ej. 2023)" required>
+          <input type="text" name="propNombre" placeholder="Nombre Propietario" required>
+          <input type="text" name="propTelefono" placeholder="Teléfono Propietario" required>
+          <button type="submit">Guardar Moto</button>
+        </form>
+      </div>
+    <% } %>
+
+  <div class="panel <%= usuarioActual.rol !== 'admin' ? 'full-width' : '' %>">
+      <h3>Motocicletas en Taller</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Placas</th>
+            <th>Marca / Modelo</th>
+            <th>Propietario</th>
+            <th>Servicios</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% motos.forEach(m => { %>
+            <tr>
+              <td><strong><%= m.placas %></strong></td>
+              <td><%= m.marca %> <%= m.modelo %> (<%= m.anio %>)</td>
+              <td><%= m.propietario.nombre %></td>
+              <td><%= m.servicios.length %> registros</td>
+              <td>
+                <a href="/motos/<%= m._id %>" class="action-btn">Ver Historial</a>
+              </td>
+            </tr>
+          <% }) %>
+          <% if (motos.length === 0) { %>
+            <tr><td colspan="5">No hay motocicletas registradas aún.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

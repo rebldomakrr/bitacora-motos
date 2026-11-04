@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle Moto - <%= moto.placas %></title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    header { display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 2rem; }
+    a { color: #38bdf8; text-decoration: none; }
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+    .panel { background: #1e293b; padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
+    input, select, textarea, button { width: 100%; padding: 0.6rem; margin-bottom: 0.75rem; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    button { background: #0284c7; font-weight: bold; cursor: pointer; border: none; }
+    .service-card { background: #0f172a; padding: 1rem; border-radius: 6px; border-left: 4px solid #38bdf8; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h2><%= moto.marca %> <%= moto.modelo %> (<%= moto.anio %>)</h2>
+      <span>Placas: <strong><%= moto.placas %></strong> | Dueño: <%= moto.propietario.nombre %> - Tel: <%= moto.propietario.telefono %></span>
+    </div>
+    <div>
+      <a href="/">← Volver al Dashboard</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>Añadir Servicio a Bitácora</h3>
+      <form action="/motos/<%= moto._id %>/servicio" method="POST">
+        <select name="tipo" required>
+          <option value="Cambio de Aceite">Cambio de Aceite</option>
+          <option value="Filtro de Aire">Filtro de Aire</option>
+          <option value="Bujía">Bujía</option>
+          <option value="Frenos">Frenos</option>
+          <option value="Cadena/Transmisión">Cadena/Transmisión</option>
+          <option value="Ajuste General">Ajuste General</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <input type="number" name="kilometraje" placeholder="Kilometraje actual" required>
+        <input type="number" name="costo" placeholder="Costo del servicio ($)">
+        <textarea name="detalles" rows="3" placeholder="Detalles de refacciones o notas técnicas"></textarea>
+        <button type="submit">Registrar Mantenimiento</button>
+      </form>
+
+      <% if (usuarioActual.rol === 'admin') { %>
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 1.5rem 0;">
+        <form action="/motos/<%= moto._id %>/eliminar" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta moto y su historial?');">
+          <button type="submit" style="background: #ef4444;">Eliminar Moto</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="panel">
+      <h3>Historial de Mantenimientos</h3>
+      <% moto.servicios.slice().reverse().forEach(s => { %>
+        <div class="service-card">
+          <div style="display: flex; justify-content: space-between;">
+            <strong><%= s.tipo %></strong>
+            <span style="color: #94a3b8; font-size: 0.85rem;"><%= new Date(s.fecha).toLocaleDateString() %></span>
+          </div>
+          <p style="margin: 0.5rem 0; font-size: 0.9rem;"><%= s.detalles || 'Sin observaciones adicionales.' %></p>
+          <div style="font-size: 0.8rem; color: #94a3b8;">
+            Km: <%= s.kilometraje %> | Costo: $<%= s.costo %> | Realizado por: <em><%= s.realizadoPor %></em>
+          </div>
+        </div>
+      <% }) %>
+      <% if (moto.servicios.length === 0) { %>
+        <p style="color: #94a3b8;">No hay servicios registrados en la bitácora todavía.</p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

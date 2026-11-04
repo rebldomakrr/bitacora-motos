@@ -68,6 +68,8 @@ router.post('/usuarios/crear', verificarSesion, soloAdmin, async (req, res) => {
   }
 });
 // Ruta directa para crear el primer administrador
+const bcrypt = require('bcryptjs'); // o require('bcrypt') según tengas en package.json
+
 router.get('/registro-inicial', async (req, res) => {
   try {
     const totalUsuarios = await User.countDocuments();
@@ -75,14 +77,27 @@ router.get('/registro-inicial', async (req, res) => {
       return res.send('Ya existen usuarios registrados en la base de datos.');
     }
 
+    // Hasheo manual directo para evitar el conflicto con next()
+    const salt = await bcrypt.genSalt(10);
+    const passwordHashed = await bcrypt.hash('admin', salt);
+
     const admin = new User({
       nombre: 'Administrador',
       email: 'admin@taller.com',
-      password: 'admin', // El middleware pre-save de User.js se encargará de encriptarla
+      password: passwordHashed,
       rol: 'admin'
     });
 
-    await admin.save();
+    // Guardado omitiendo hooks problemáticos
+    await User.collection.insertOne({
+      nombre: admin.nombre,
+      email: admin.email,
+      password: passwordHashed,
+      rol: admin.rol,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
     res.send('¡Administrador creado con éxito! Correo: admin@taller.com | Contraseña: admin. Ya puedes ir a /login');
   } catch (error) {
     res.status(500).send('Error creando usuario inicial: ' + error.message);

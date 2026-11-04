@@ -67,5 +67,25 @@ router.post('/usuarios/crear', verificarSesion, soloAdmin, async (req, res) => {
     res.status(500).send('Error creando usuario');
   }
 });
+// Ruta directa para crear el primer administrador
+router.get('/registro-inicial', async (req, res) => {
+  try {
+    const totalUsuarios = await User.countDocuments();
+    if (totalUsuarios > 0) {
+      return res.send('Ya existen usuarios registrados en la base de datos.');
+    }
 
+    const admin = new User({
+      nombre: 'Administrador',
+      email: 'admin@taller.com',
+      password: 'admin', // El middleware pre-save de User.js se encargará de encriptarla
+      rol: 'admin'
+    });
+
+    await admin.save();
+    res.send('¡Administrador creado con éxito! Correo: admin@taller.com | Contraseña: admin. Ya puedes ir a /login');
+  } catch (error) {
+    res.status(500).send('Error creando usuario inicial: ' + error.message);
+  }
+});
 module.exports = router;
